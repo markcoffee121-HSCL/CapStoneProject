@@ -433,7 +433,7 @@ export default function DashboardPage() {
                     onClick={async () => {
                       const res = await fetch(`${backend}/runs/${r.run_id}/notify`, { method: 'POST' });
                       if (!res.ok) alert('Notify failed');
-                      else alert('Sent to n8n ✅');
+                      else alert('Sent to n8n');
                     }}
                     style={{
                       background: '#d97706',

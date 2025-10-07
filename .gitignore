@@ -1,34 +1,42 @@
-# Node
-node_modules/
-.next/
-out/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-store/
-pnpm-lock.yaml
-package-lock.json
+# --- Global OS / Editor ---
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
+.vscode/
+.idea/
 
-# Python
+# --- Python (backend) ---
+venv/
+.env
+.env.*
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-*.pytest_cache/
-.venv/
-venv/
-.env
-.env.*
-pip-log.txt
+*.egg-info/
+.mypy_cache/
+.pytest_cache/
 
-# Editor/OS
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
+# Backend runtime artifacts
+backend/artifacts/
 
-# Builds / Artifacts
-dist/
-build/
+# --- Node / Next.js (dashboard) ---
+dashboard/node_modules/
+dashboard/.next/
+dashboard/.turbo/
+dashboard/dist/
+dashboard/.env
+dashboard/.env.*
+npm-debug.log*
+
+# --- Cache / Misc ---
+.cache/
 coverage/
-artifacts/
+*.coverage
+*.sqlite
+*.db
+
+# --- OS-specific line endings helpers (optional) ---
+*.sh eol=lf
