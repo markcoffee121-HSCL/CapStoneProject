@@ -49,15 +49,22 @@ A dashboard lets you start runs, watch them live, and download results.
 
 # Architecture
 
-[Dashboard (Next.js)]  ── POST /research ──▶  [FastAPI Backend]
-     │                                            │
-     └─ SSE /events?run_id=…  ◀───────────────────┘
-
-[LangGraph pipeline]
-  planner → searcher → retriever → summarizer → synthesizer → critic → presenter
-               │            │             │              │           │
-           SerpAPI       httpx +       notes per      final MD     sanity
-           /Tavily      Trafilatura      source          report     pass
+[Dashboard (Next.js)]
+│
+│ POST /research
+▼
+[FastAPI Backend]
+│
+├── SSE stream → /events?run_id={id}
+│
+└── LangGraph Pipeline:
+planner → searcher → retriever → summarizer → synthesizer → critic → presenter
+│
+▼
+Writes report.md artifact
+│
+▼
+Notifies N8N via POST /runs/{run_id}/notify
 
 Artifacts: backend/artifacts/<run_id>/report.md
 Metrics:   GET /metrics (Prometheus text)
