@@ -1,0 +1,35 @@
+version: "3.9"
+services:
+  backend:
+    build: ./backend
+    env_file:
+      - ./backend/.env
+    ports:
+      - "9009:9009"
+    volumes:
+      - ./backend/artifacts:/app/artifacts
+    command: uvicorn app.main:app --host 0.0.0.0 --port 9009
+
+  dashboard:
+    build: ./dashboard
+    environment:
+      - NEXT_PUBLIC_BACKEND_URL=http://backend:9009
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    command: npm run start
+
+  n8n:
+    image: n8nio/n8n:latest
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  n8n_data:

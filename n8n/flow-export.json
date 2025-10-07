@@ -1,0 +1,47 @@
+{
+  "name": "HSCL — Report Intake",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "hscl/report",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "content-type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      },
+      "id": "Webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [ 340, 300 ],
+      "webhookId": "hscl-report",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "options": {},
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "responseCode": 200
+      },
+      "id": "Respond",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [ 640, 300 ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [ { "node": "Respond to Webhook", "type": "main", "index": 0 } ]
+      ]
+    }
+  },
+  "active": true
+}

@@ -1,0 +1,21 @@
+FROM node:20.16.0-alpine AS deps
+WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+FROM node:20.16.0-alpine AS build
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+# NEXT_PUBLIC_BACKEND_URL must be set at build or runtime (Vercel sets at runtime)
+RUN npm run build
+
+FROM node:20.16.0-alpine AS run
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=build /app/.next ./.next
+COPY --from=build /app/public ./public
+COPY package.json ./
+COPY --from=build /app/node_modules ./node_modules
+EXPOSE 3000
+CMD ["npm", "run", "start"]
