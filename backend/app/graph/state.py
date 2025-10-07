@@ -3,10 +3,8 @@ from typing import Annotated, Optional, Dict, Any
 from langgraph.graph import add_messages
 from operator import add
 
-# Define how state fields should be merged between nodes
 GraphState = dict[str, Any]
 
-# Depth presets read by other nodes via state["limits"]
 DEPTH_PRESETS: Dict[str, Dict[str, Any]] = {
     "quick":    {"max_sources": 3,  "fetch_timeout": 8,  "summary_words": 120},
     "standard": {"max_sources": 6,  "fetch_timeout": 12, "summary_words": 200},

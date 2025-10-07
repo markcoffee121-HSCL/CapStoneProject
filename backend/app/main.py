@@ -18,7 +18,6 @@ from .storage.files import ARTIFACTS_DIR, read_text
 import logging
 import traceback
 
-# Configure logging early
 setup_json_logging()
 
 VERSION = "0.1.0"
@@ -30,7 +29,6 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# CORS for dashboard/dev
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -39,10 +37,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Expose /metrics (must be before startup)
 init_metrics(app)
 
-# Build the research graph once per process
 _GRAPH = build_research_graph()
 
 
@@ -62,7 +58,6 @@ def root():
     return {"message": "HSCL Capstone backend is running. See /healthz and /docs."}
 
 
-# ---------- SSE events ----------
 @app.get("/events")
 async def events(request: Request, run_id: str | None = None):
     """
@@ -72,7 +67,6 @@ async def events(request: Request, run_id: str | None = None):
     return await sse_endpoint(request, run_id=run_id)
 
 
-# ---------- LangGraph runner ----------
 async def _run_graph_async(run_id: str, req: RunRequest):
     try:
         store.start(run_id)
@@ -85,27 +79,23 @@ async def _run_graph_async(run_id: str, req: RunRequest):
             max_sources=req.max_sources,
         )
 
-        # Each node publishes its own SSE step events
         await _GRAPH.ainvoke(init_state)
 
         store.finish(run_id)
         await bus.publish(make_event(run_id, "run", "completed", message="Run finished"))
     except Exception as e:
-        # log full traceback to the backend console
         logging.exception("Run crashed (run_id=%s)", run_id)
-        # keep the original exception type for easier diagnosis in UI/tests
         store.error(run_id, repr(e))
         await bus.publish(make_event(run_id, "run", "error", message=repr(e)))
 
 
-# ---------- API ----------
 @app.post("/research", response_model=RunCreated)
 async def research(req: RunRequest, background: BackgroundTasks):
     """
     Start a research run. Returns {"run_id": "..."} immediately.
     Subscribe to /events (or /events?run_id=...) to watch progress.
     """
-    rs = store.create(topic=req.topic, depth=req.depth)  # Add topic and depth here
+    rs = store.create(topic=req.topic, depth=req.depth)
     background.add_task(_run_graph_async, rs.run_id, req)
     return RunCreated(run_id=rs.run_id)
 
@@ -130,8 +120,8 @@ async def resend_to_n8n(run_id: str):
     report_md = read_text(run_id, "report.md") or ""
     payload = {
         "run_id": run_id,
-        "topic": rs.topic if hasattr(rs, 'topic') else "unknown",  # Safely access topic
-        "depth": rs.depth if hasattr(rs, 'depth') else "unknown",  # Safely access depth
+        "topic": rs.topic if hasattr(rs, 'topic') else "unknown",
+        "depth": rs.depth if hasattr(rs, 'depth') else "unknown",
         "plan": [],
         "sources": [],
         "report_md": report_md,

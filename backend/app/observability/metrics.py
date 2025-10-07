@@ -1,14 +1,12 @@
 from prometheus_fastapi_instrumentator import Instrumentator
 from prometheus_client import Counter
 
-# HTTP instrumentation
 def init_metrics(app) -> None:
     if getattr(app.state, "metrics_initialized", False):
         return
     Instrumentator().instrument(app).expose(app, endpoint="/metrics")
     app.state.metrics_initialized = True
 
-# Custom Groq metrics
 _groq_requests = Counter("groq_requests_total", "Total Groq requests", ["model", "agent"])
 _groq_tokens   = Counter("groq_tokens_total", "Groq tokens used", ["type", "model", "agent"])
 _groq_errors   = Counter("groq_errors_total", "Groq errors", ["model", "agent"])

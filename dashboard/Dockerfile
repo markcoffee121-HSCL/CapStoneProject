@@ -7,7 +7,6 @@ FROM node:20.16.0-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# NEXT_PUBLIC_BACKEND_URL must be set at build or runtime (Vercel sets at runtime)
 RUN npm run build
 
 FROM node:20.16.0-alpine AS run

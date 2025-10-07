@@ -19,7 +19,6 @@ def _mk_report(topic: str, notes: List[Dict], model: str, provider: str) -> str:
     if not notes:
         lines.append("- No findings available.")
     else:
-        # one bullet per source (first line) + include title/url
         for n in notes:
             bullets = n.get("bullets") or []
             head = bullets[0] if bullets else ""
@@ -44,10 +43,10 @@ async def synthesizer_node(state: GraphState) -> GraphState:
 
     topic = state.get("topic", "")
     notes = state.get("notes", [])
-    model = settings.GROQ_MODEL  # Get from settings instead of state
-    provider = settings.SEARCH_PROVIDER  # Get from settings instead of state
+    model = settings.GROQ_MODEL
+    provider = settings.SEARCH_PROVIDER
 
     report_md = _mk_report(topic, notes, model, provider)
 
     await bus.publish(make_event(run_id, "synthesize", "completed", agent="synthesizer"))
-    return {**state, "report_md": report_md}
+    return {**state,"report_md": report_md}

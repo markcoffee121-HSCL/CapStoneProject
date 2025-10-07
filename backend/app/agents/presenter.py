@@ -20,7 +20,6 @@ async def presenter_node(state: GraphState) -> GraphState:
     await asyncio.sleep(_delay())
     await bus.publish(make_event(run_id, "present", "completed", agent="presenter", data={"path": path}))
 
-    # ---- notify n8n
     payload = {
         "run_id": run_id,
         "topic": state.get("topic"),
@@ -44,10 +43,9 @@ async def presenter_node(state: GraphState) -> GraphState:
         status_label = "completed" if 200 <= status < 300 else "error"
         info = {"status": status}
         if status == 0:
-            info["error"] = text  # connection exception details
+            info["error"] = text
         elif status >= 300:
             info["response"] = (text[:240] + "…") if len(text) > 240 else text
         await bus.publish(make_event(run_id, "notify", status_label, agent="n8n", data=info))
-    # ----
 
     return {**state, "artifacts": {"report_md": path}}

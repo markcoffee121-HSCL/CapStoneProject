@@ -6,7 +6,7 @@ from ..observability.events import bus, make_event
 from ..config import settings
 from ..graph.state import GraphState
 from ..tools.search_providers import get_search_provider
-from ..tools.search_providers.duckduckgo import ddg_search  # fallback
+from ..tools.search_providers.duckduckgo import ddg_search
 
 def _domain(u: str) -> str:
     host = (urlparse(u).hostname or "").lower()
@@ -14,7 +14,6 @@ def _domain(u: str) -> str:
         host = host.split(".", 1)[-1]
     return host
 
-# CJK quick check
 _CJK = re.compile(r"[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]")
 
 def _looks_english(text: str, url: str) -> bool:
@@ -34,7 +33,6 @@ async def _provider_search(query: str, k: int, domains: Optional[List[str]]) -> 
             for r in res
         ]
     except Exception:
-        # fallback to DDG (no key)
         res = await ddg_search(query, max_results=k)
         return [
             {"title": r.get("title", ""), "url": r.get("url", "") or r.get("link", ""), "snippet": r.get("snippet", "")}
@@ -47,11 +45,10 @@ async def searcher_node(state: GraphState) -> GraphState:
     k = int(state.get("max_sources", 6))
     domains = state.get("domains") or None
 
-    await bus.publish(make_event(run_id, "search", "started", agent="searcher"))  # Only once!
+    await bus.publish(make_event(run_id, "search", "started", agent="searcher"))
 
-    raw = await _provider_search(q, max(10, k * 2), domains)  # get a larger candidate pool
+    raw = await _provider_search(q, max(10, k * 2), domains)  
 
-    # de-dup by domain
     seen = set()
     dedup: List[Dict] = []
     for item in raw:
@@ -64,7 +61,6 @@ async def searcher_node(state: GraphState) -> GraphState:
         seen.add(d)
         dedup.append(item)
 
-    # prefer English if configured
     prefer_lang = (settings.PREFER_LANG or "").lower()
     out: List[Dict] = []
     if prefer_lang == "en":

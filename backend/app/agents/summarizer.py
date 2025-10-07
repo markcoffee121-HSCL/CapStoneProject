@@ -13,7 +13,7 @@ async def summarizer_node(state: GraphState) -> GraphState:
 
     limits = state.get("limits", {})
     target_words = int(limits.get("summary_words", 200))
-    bullet_chars = max(80, int(target_words * 6 * 0.6))  # rough char estimate
+    bullet_chars = max(80, int(target_words * 6 * 0.6))
 
     k = int(state.get("max_sources", 6))
     notes = []

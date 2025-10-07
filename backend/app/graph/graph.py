@@ -2,7 +2,6 @@ from __future__ import annotations
 from langgraph.graph import StateGraph, START, END
 from typing import Any
 
-# Import node functions
 from ..agents.planner import planner_node
 from ..agents.searcher import searcher_node
 from ..agents.retriever import retriever_node
@@ -12,7 +11,6 @@ from ..agents.critic import critic_node
 from ..agents.presenter import presenter_node
 
 def build_research_graph():
-    # Use dict with custom reducer to merge state properly
     def merge_state(left: dict, right: dict) -> dict:
         """Merge right into left, preserving all keys"""
         return {**left, **right}

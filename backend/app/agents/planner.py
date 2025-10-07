@@ -18,10 +18,8 @@ def _parse_plan(text: str) -> List[str]:
             continue
         if re.match(r"^(\d+[\).\]]|[-*•])\s+", line.strip()):
             lines.append(re.sub(r"^(\d+[\).\]]|[-*•])\s+", "", line.strip()))
-    # fallback: split by sentences if nothing matched
     if not lines:
         lines = [s.strip() for s in re.split(r"[.;]\s+", text) if s.strip()]
-    # take 3–6 steps
     return lines[:6] if len(lines) > 6 else lines
 
 async def planner_node(state: GraphState) -> GraphState:
